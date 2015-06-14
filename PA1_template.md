@@ -10,6 +10,13 @@ The r code in this R Markdown file works only if the working directory is teh di
 #install.packages("plyr")
 #install.packages("ggplot2")
 #install.packages("gridExtra")
+
+# create directory to store the plots
+dir.create("figure/")
+```
+
+```
+## Warning in dir.create("figure/"): 'figure' already exists
 ```
 ####Loading and preprocessing the data
 
@@ -35,6 +42,18 @@ totalPerDay <- ddply(cleanData, "date", numcolwise(sum))[,1:2]
 
 # 2. plotting a histogram of the total number of steps taken per day
 library("ggplot2")
+png(filename = "figure/plot1.png",width = 480, height = 480)
+qplot(steps, data=totalPerDay, geom="histogram")+
+  ggtitle("Histogram of total steps per day")
+dev.off()
+```
+
+```
+## png 
+##   2
+```
+
+```r
 qplot(steps, data=totalPerDay, geom="histogram")+
   ggtitle("Histogram of total steps per day")
 ```
@@ -66,6 +85,18 @@ The median of the total number of steps taken per day is 10765.
 ```r
 # 1. ploting time series of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 stepsPerInterval <- ddply(cleanData, "interval", numcolwise(mean))[,1:2]
+png(filename = "figure/plot2.png",width = 480, height = 480)
+ggplot() + geom_line(data=stepsPerInterval, aes(x=interval, y=steps))+
+  ggtitle("Average steps per time interval")
+dev.off()
+```
+
+```
+## png 
+##   2
+```
+
+```r
 ggplot() + geom_line(data=stepsPerInterval, aes(x=interval, y=steps))+
   ggtitle("Average steps per time interval")
 ```
@@ -119,6 +150,21 @@ library("gridExtra")
 
 ```
 ## Loading required package: grid
+```
+
+```r
+png(filename = "figure/plot3.png",width = 480, height = 480)
+plot1 <- qplot(steps, data=totalPerDay, geom="histogram")+
+  ggtitle("Histogram of total\nsteps per day")
+plot2 <- qplot(steps, data=totalPerDay_filled, geom="histogram")+
+  ggtitle("Histogram of total\nsteps per day with filled values")
+grid.arrange(plot1, plot2, ncol=2)
+dev.off()
+```
+
+```
+## png 
+##   2
 ```
 
 ```r
@@ -188,7 +234,24 @@ for (i in 1:length(day)){
 data <- cbind(data, daytype)
 # 2. Making a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
 steps_per_interval_per_daytype<-ddply(data, c("interval","daytype") , numcolwise(mean))
+png(filename = "figure/plot4.png",width = 480, height = 480)
 
+plot3 <- ggplot() + geom_line(data=steps_per_interval_per_daytype[steps_per_interval_per_daytype$daytype=="weekday",], aes(x=interval, y=steps))+
+  ggtitle("Average steps per time interval\nweekdays")
+
+plot4 <- ggplot() + geom_line(data=steps_per_interval_per_daytype[steps_per_interval_per_daytype$daytype=="weekend",], aes(x=interval, y=steps))+
+  ggtitle("Average steps per time interval\nweekends")
+
+grid.arrange(plot3, plot4, nrow=2)
+dev.off()
+```
+
+```
+## png 
+##   2
+```
+
+```r
 plot3 <- ggplot() + geom_line(data=steps_per_interval_per_daytype[steps_per_interval_per_daytype$daytype=="weekday",], aes(x=interval, y=steps))+
   ggtitle("Average steps per time interval\nweekdays")
 
