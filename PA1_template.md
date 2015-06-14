@@ -1,14 +1,10 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 Created by Anastasios Mallis
 
 The r code in this R Markdown file works only if the working directory is teh directory of the repository.
 
-```{r}
+
+```r
 # installing required packages
 #install.packages("utils")
 #install.packages("plyr")
@@ -16,7 +12,8 @@ The r code in this R Markdown file works only if the working directory is teh di
 #install.packages("gridExtra")
 ```
 ####Loading and preprocessing the data
-```{r}
+
+```r
 # unzip the file 
 library("utils")
 unzip("activity.zip","activity.csv")
@@ -29,7 +26,8 @@ cleanData <- data[complete.cases(data),]
 ```
 
 ####What is mean total number of steps taken per day?
-```{r}
+
+```r
 library("plyr")
 
 # 1. calculating the sum per day
@@ -40,39 +38,67 @@ library("ggplot2")
 qplot(steps, data=totalPerDay, geom="histogram")+
   ggtitle("Histogram of total steps per day")
 ```
-```{r}
+
+![](./PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
+
+```r
 # 3. calculating the mean and the median of the total number of steps taken per day
 meanSteps   <-  round(mean(totalPerDay[,2]),3);    meanSteps
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 medianSteps <-  median(totalPerDay[,2]);  medianSteps
 ```
-The mean of the total number of steps taken per day is `r meanSteps`.
-The median of the total number of steps taken per day is `r medianSteps`.
+
+```
+## [1] 10765
+```
+The mean of the total number of steps taken per day is 1.0766189\times 10^{4}.
+The median of the total number of steps taken per day is 10765.
 
 
 ####What is the average daily activity pattern?
-```{r}
+
+```r
 # 1. ploting time series of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 stepsPerInterval <- ddply(cleanData, "interval", numcolwise(mean))[,1:2]
 ggplot() + geom_line(data=stepsPerInterval, aes(x=interval, y=steps))+
   ggtitle("Average steps per time interval")
 ```
-```{r}
+
+![](./PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
+
+```r
 # 2. finding the 5-minute interval, on average across all the days in the dataset, that contains the maximum number of steps
 maxStepsInterval <- stepsPerInterval[stepsPerInterval[,2]==max(stepsPerInterval[,2]),1]
 maxStepsInterval
 ```
-On average the most number of steps happens at the time interval `r maxStepsInterval`.
+
+```
+## [1] 835
+```
+On average the most number of steps happens at the time interval 835.
 
 
 ####Imputing missing values
-```{r}
+
+```r
 # 1. calculating and reporting the number of missing values
 numMissingValues <- length(which(is.na(data)))
 numMissingValues
 ```
-The number of missing values is `r numMissingValues`.
 
-```{r}
+```
+## [1] 2304
+```
+The number of missing values is 2304.
+
+
+```r
 # 2. filling the NAs with the mean for that 5-minute interval
 for (i in 1:length(data[,1])){
   if(is.na(data[i,1])){
@@ -89,31 +115,65 @@ totalPerDay_filled <- ddply(data, "date", numcolwise(sum))[,1:2]
 
 # plotting a histogram of the total number of steps taken per day (with ad with out filled data)
 library("gridExtra")
+```
+
+```
+## Loading required package: grid
+```
+
+```r
 plot1 <- qplot(steps, data=totalPerDay, geom="histogram")+
   ggtitle("Histogram of total\nsteps per day")
 plot2 <- qplot(steps, data=totalPerDay_filled, geom="histogram")+
   ggtitle("Histogram of total\nsteps per day with filled values")
 grid.arrange(plot1, plot2, ncol=2)
 ```
-```{r}
+
+![](./PA1_template_files/figure-html/unnamed-chunk-8-1.png) 
+
+```r
 # Calculating and reporting the mean and median total number of steps taken per day
 meanSteps_filled   <-  round(mean(totalPerDay_filled[,2]),3);    meanSteps_filled
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 medianSteps_filled <-  median(totalPerDay_filled[,2]);  medianSteps_filled
 ```
-The mean of the total number of steps taken per day is `r meanSteps_filled` (filling the NAs).
-The median of the total number of steps taken per day is `r medianSteps_filled` (filling the NAs).
-```{r}
+
+```
+## [1] 10766.19
+```
+The mean of the total number of steps taken per day is 1.0766189\times 10^{4} (filling the NAs).
+The median of the total number of steps taken per day is 1.0766189\times 10^{4} (filling the NAs).
+
+```r
 # impact of imputing missing data on the estimates of the total daily number of steps
 diff_mean   <- meanSteps_filled   - meanSteps;    diff_mean 
+```
+
+```
+## [1] 0
+```
+
+```r
 diff_median <- medianSteps_filled - medianSteps;  diff_median
 ```
-The mean of the total number of steps taken per day changed by `r diff_mean` when filling the NAs.
-The median of the total number of steps taken per day changed by `r diff_median` when filling the NAs.
+
+```
+## [1] 1.188679
+```
+The mean of the total number of steps taken per day changed by 0 when filling the NAs.
+The median of the total number of steps taken per day changed by 1.1886792 when filling the NAs.
 
 
 ####Are there differences in activity patterns between weekdays and weekends?
 
-```{r}
+
+```r
 # 1. Creating a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day
 day<-factor(weekdays(as.Date(data$date)))
 daytype<-c(rep("",length(day)))
@@ -137,3 +197,5 @@ plot4 <- ggplot() + geom_line(data=steps_per_interval_per_daytype[steps_per_inte
 
 grid.arrange(plot3, plot4, nrow=2)
 ```
+
+![](./PA1_template_files/figure-html/unnamed-chunk-11-1.png) 
